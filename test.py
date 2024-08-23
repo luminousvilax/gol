@@ -3,7 +3,7 @@
 
 import unittest
 import pandas as pd
-from board import CellBoard
+from .board import CellBoard
 
 class TestCellBoard(unittest.TestCase):
     
@@ -86,3 +86,22 @@ class TestCellBoard(unittest.TestCase):
         ])
         pd.testing.assert_frame_equal(self.cb.df, expect_df)
         self.assertEqual(self.cb.live_count(), 4)
+        
+    def test_kill(self):
+        self.cb.df = pd.DataFrame([
+            [0,1,0],
+            [0,0,1],
+            [0,1,0]
+        ])
+        self.assertEqual(self.cb.live_count(), 3)
+        self.cb.kill(0, 1)
+        self.assertEqual(self.cb.live_count(), 2)
+        
+        self.cb.next_state()
+        expect_df = pd.DataFrame([
+            [0,0,0],
+            [0,0,0],
+            [0,0,0]
+        ])
+        pd.testing.assert_frame_equal(self.cb.df, expect_df)
+        self.assertEqual(self.cb.live_count(), 0)

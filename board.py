@@ -11,7 +11,9 @@ import pandas as pd
 import random
 
 LIVE_CHANCE = 0.3
-CELL_CHAR = '❤' # replacements u■u▉u▇u▆a❤
+CELL_CHAR = '💗' # replacements u■u▉u▇u▆a❤
+KILLED_CHAR = '👻'
+DEAD_CHAR = '  '
 CONVERGENCE_LIMIT = 10
 # wide populaton range causes ageing and stalemate
 # less revive limit brings changing and vitality
@@ -46,12 +48,11 @@ class CellBoard:
 
     def random_state(self):
         self.df = self.df.applymap(lambda x: 0 if random.random() > LIVE_CHANCE else 1)
-        self.cells = self.live_count()
 
     def next_state(self):
         # build neighbor bitmap
         def judge(liveness: int, neighbors: int):
-            if liveness:
+            if liveness == 1:
                 if neighbors < MIN_POPULATION or neighbors > MAX_POPULATION:
                     return 0
                 return 1
@@ -84,58 +85,32 @@ class CellBoard:
         # use sum to count live cells
         sidx, eidx = max(idx - 1, 0), min(idx + 1, self.height - 1)
         scol, ecol = max(col - 1, 0), min(col + 1, self.width - 1)
-        return self.df.loc[sidx:eidx, scol:ecol].to_numpy().sum() - self.df.at[idx, col]
+        cur = self.df.at[idx, col]
+        return (self.df.loc[sidx:eidx, scol:ecol] == 1).to_numpy().sum() - (cur if cur == 1 else 0)
     
     def live_count(self):
-        return self.cells or self.df.to_numpy().sum()
+        if not self.cells:
+            self.cells = (self.df == 1).to_numpy().sum()
+        return self.cells
+    
+    def kill(self, idx: int, col: int):
+        try:
+            liveness = self.df.at[idx, col]
+        except KeyError:
+            return
+        self.df.at[idx, col] = -1
+        if liveness == 1:
+            self.cells -= 1
     
     def render(self):
-        rage = '-' * (len(self.df.columns)*2 + 3)
+        rage = '-' * (len(self.df.columns)*3 + 3)
+        charset = {0: DEAD_CHAR, 1: CELL_CHAR, -1: KILLED_CHAR}
         print(rage)
         for _, row in self.df.iterrows():
-            print('|', *[CELL_CHAR if val else ' ' for val in row], '|', sep=' ')
+            print('|', *[charset[val] for val in row], '|', sep=' ')
         print(rage)
         print('\n', repr(self))
         
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(width={self.width}, height={self.height}, cells(live)={self.live_count()})'
-
-
-def main():
-    import time
-    import os
-    import argparse
-    
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--width', default=10, type=int, required=False)
-    parser.add_argument('-l', '--height', default=10, type=int, required=False)
-    parser.add_argument('-f', '--file', type=str, required=False, help='from an init state file')
-    parser.add_argument('-t', '--times', type=int, required=False, help='max run times')
-    parser.add_argument('-i', '--interval', default=0.5, type=float, required=False, help='interval seconds to flush state')
-    args = parser.parse_args()
-
-    if not args.file:
-        board = CellBoard(args.width, args.height)
-        board.random_state()
-    else:
-        board = CellBoard.from_file(args.file)
-
-    while True:
-        board.render()
-        time.sleep(args.interval)
-        # input()
-        board.next_state()
-        convergenced, generation = board.convergence
-        if convergenced:
-            print(f'CellBoard convergenced, from generation {generation}')
-            break
-        if board.live_count() == 0 or (args.times and board.times == args.times):
-            print(f'Life generation {generation} exceed...Ready to exit...')
-            time.sleep(5)
-            break
-        os.system('clear')
-
-
-if __name__ == '__main__':
-    main()
     
