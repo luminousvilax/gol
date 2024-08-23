@@ -10,7 +10,7 @@ parser.add_argument('-l', '--height', default=10, type=int, required=False)
 parser.add_argument('-f', '--file', type=str, required=False, help='from an init state file')
 parser.add_argument('-t', '--times', type=int, required=False, help='max run times')
 parser.add_argument('-i', '--interval', default=0.5, type=float, required=False, help='interval seconds to flush state')
-parser.add_argument('-k', '--killer', default=False, action='store_true', help='put a kiiler cell')
+parser.add_argument('-k', '--killer', default=False, action='store_true', help='put a killer cell')
 parser.add_argument('-r', '--healer', default=False, action='store_true', help='put a healer cell')
 args = parser.parse_args()
 
