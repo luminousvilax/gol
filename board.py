@@ -11,9 +11,9 @@ import pandas as pd
 import random
 
 LIVE_CHANCE = 0.3
-CELL_CHAR = '💗' # replacements u■u▉u▇u▆a❤
-KILLED_CHAR = '👻'
-DEAD_CHAR = '  '
+CELL_CHAR = '❤' # replacements u■u▉u▇u▆a❤ 💗
+KILLED_CHAR = 'X' # replacements 👻
+DEAD_CHAR = ' '
 CONVERGENCE_LIMIT = 10
 # wide populaton range causes ageing and stalemate
 # less revive limit brings changing and vitality
@@ -103,7 +103,7 @@ class CellBoard:
             self.cells -= 1
     
     def render(self):
-        rage = '-' * (len(self.df.columns)*3 + 3)
+        rage = '-' * (len(self.df.columns)*2 + 3)
         charset = {0: DEAD_CHAR, 1: CELL_CHAR, -1: KILLED_CHAR}
         print(rage)
         for _, row in self.df.iterrows():
