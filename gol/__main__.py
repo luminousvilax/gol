@@ -25,7 +25,6 @@ healer = Healer(board)
 while True:
     board.render()
     time.sleep(args.interval)
-    # input()
     board.next_state()
     if args.killer:
         killer.move()

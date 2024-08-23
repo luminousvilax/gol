@@ -7,7 +7,7 @@ from itertools import product
 from .board import CellBoard
 
 class HyperCell:
-    
+
     def __init__(self, cb: CellBoard, x: int=0, y: int=0) -> None:
         """
         Hyper cell will appear in board randomly by default
@@ -15,7 +15,7 @@ class HyperCell:
         self.cb = cb
         self.x = x or (random.randint(0, self.cb.height - 1))
         self.y = y or (random.randint(0, self.cb.width - 1))
-        
+
     def move(self, action: Callable[[str], None]):
         """
         Hyper cell move to available neighbour randomly,
@@ -32,11 +32,11 @@ class HyperCell:
                 break
 
 class Killer(HyperCell):
-    
+
    def move(self):
         super().move(self.cb.kill)
-       
+
 class Healer(HyperCell):
-    
+
     def move(self):
         super().move(self.cb.heal)

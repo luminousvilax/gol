@@ -11,10 +11,10 @@ import pandas as pd
 import random
 
 LIVE_CHANCE = 0.3
-CELL_CHAR = '❤' # replacements u■u▉u▇u▆a❤ 💗
-KILLED_CHAR = '✘' # replacements 👻
-HEALED_CHAR = '✦'
-DEAD_CHAR = ' '
+CELL_CHAR = "❤"  # replacements u■u▉u▇u▆a❤ 💗
+KILLED_CHAR = "✘"  # replacements 👻
+HEALED_CHAR = "✦"
+DEAD_CHAR = " "
 CONVERGENCE_LIMIT = 10
 # wide populaton range causes ageing and stalemate
 # less revive limit brings changing and vitality
@@ -24,24 +24,24 @@ REVIVE_LIMIT = 3
 
 charset = {0: DEAD_CHAR, 1: CELL_CHAR, -1: KILLED_CHAR, 2: HEALED_CHAR}
 
+
 class CellBoard:
-    
     def __init__(self, width: int, height: int) -> None:
         self.width = width
         self.height = height
         df = pd.DataFrame(index=range(height), columns=range(width))
         self.df = df.fillna(0)
-        self.cells = 0   # all lived cells count
-        self.times = 0   # Iterate times
-        self.equalized = 0   # board convergence count
-        self.convergence = (False, 0)   # is convergenced and convergence times
+        self.cells = 0  # all lived cells count
+        self.times = 0  # Iterate times
+        self.equalized = 0  # board convergence count
+        self.convergence = (False, 0)  # is convergenced and convergence times
 
     @classmethod
     def from_file(cls, file: str):
-        with open(file, 'r') as f:
-            rows = f.read().split('\n')
+        with open(file, "r") as f:
+            rows = f.read().split("\n")
         if not rows:
-            raise ValueError('Empty File!')
+            raise ValueError("Empty File!")
 
         cb = cls(len(rows[0]), len(rows))
         for i, row in enumerate(rows):
@@ -65,7 +65,7 @@ class CellBoard:
                 if neighbors == REVIVE_LIMIT:
                     return 1
                 return 0
-        
+
         pre_cells = self.live_count()
         self.cells = 0
         ndf = self.df.copy()
@@ -92,12 +92,12 @@ class CellBoard:
         scol, ecol = max(col - 1, 0), min(col + 1, self.width - 1)
         cur = self.df.at[idx, col]
         return (self.df.loc[sidx:eidx, scol:ecol] >= 1).to_numpy().sum() - (1 if cur >= 1 else 0)
-    
+
     def live_count(self):
         if not self.cells:
             self.cells = (self.df == 1).to_numpy().sum()
         return self.cells
-    
+
     def kill(self, idx: int, col: int):
         try:
             liveness = self.df.at[idx, col]
@@ -106,21 +106,20 @@ class CellBoard:
         self.df.at[idx, col] = -1
         if liveness == 1:
             self.cells -= 1
-            
+
     def heal(self, idx: int, col: int):
         try:
             self.df.at[idx, col] = 2
         except KeyError:
             return
-    
+
     def render(self):
-        rage = '-' * (len(self.df.columns)*2 + 3)
+        rage = "-" * (len(self.df.columns) * 2 + 3)
         print(rage)
         for _, row in self.df.iterrows():
-            print('|', *[charset[val] for val in row], '|', sep=' ')
+            print("|", *[charset[val] for val in row], "|", sep=" ")
         print(rage)
-        print('\n', repr(self))
-        
+        print("\n", repr(self))
+
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(width={self.width}, height={self.height}, cells(live)={self.live_count()})'
-    
+        return f"{self.__class__.__name__}(width={self.width}, height={self.height}, cells(live)={self.live_count()})"
