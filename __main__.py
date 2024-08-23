@@ -2,7 +2,7 @@ import time
 import os
 import argparse
 from .board import CellBoard
-from .killer import Killer
+from .cell import Killer, Healer
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-w', '--width', default=10, type=int, required=False)
@@ -10,7 +10,8 @@ parser.add_argument('-l', '--height', default=10, type=int, required=False)
 parser.add_argument('-f', '--file', type=str, required=False, help='from an init state file')
 parser.add_argument('-t', '--times', type=int, required=False, help='max run times')
 parser.add_argument('-i', '--interval', default=0.5, type=float, required=False, help='interval seconds to flush state')
-parser.add_argument('-k', '--killer', type=bool, default=False, help='whether to put a kiiler cell')
+parser.add_argument('-k', '--killer', default=False, action='store_true', help='put a kiiler cell')
+parser.add_argument('-r', '--healer', default=False, action='store_true', help='put a healer cell')
 args = parser.parse_args()
 
 if not args.file:
@@ -19,6 +20,7 @@ if not args.file:
 else:
     board = CellBoard.from_file(args.file)
 killer = Killer(board)
+healer = Healer(board)
 
 while True:
     board.render()
@@ -27,6 +29,8 @@ while True:
     board.next_state()
     if args.killer:
         killer.move()
+    if args.healer:
+        healer.move()
     convergenced, generation = board.convergence
     if convergenced:
         print(f'CellBoard convergenced, from generation {generation}')

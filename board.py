@@ -12,7 +12,8 @@ import random
 
 LIVE_CHANCE = 0.3
 CELL_CHAR = '❤' # replacements u■u▉u▇u▆a❤ 💗
-KILLED_CHAR = 'X' # replacements 👻
+KILLED_CHAR = '✘' # replacements 👻
+HEALED_CHAR = '✦'
 DEAD_CHAR = ' '
 CONVERGENCE_LIMIT = 10
 # wide populaton range causes ageing and stalemate
@@ -20,6 +21,8 @@ CONVERGENCE_LIMIT = 10
 MIN_POPULATION = 2
 MAX_POPULATION = 3
 REVIVE_LIMIT = 3
+
+charset = {0: DEAD_CHAR, 1: CELL_CHAR, -1: KILLED_CHAR, 2: HEALED_CHAR}
 
 class CellBoard:
     
@@ -52,6 +55,8 @@ class CellBoard:
     def next_state(self):
         # build neighbor bitmap
         def judge(liveness: int, neighbors: int):
+            if liveness > 1:
+                return 1
             if liveness == 1:
                 if neighbors < MIN_POPULATION or neighbors > MAX_POPULATION:
                     return 0
@@ -86,7 +91,7 @@ class CellBoard:
         sidx, eidx = max(idx - 1, 0), min(idx + 1, self.height - 1)
         scol, ecol = max(col - 1, 0), min(col + 1, self.width - 1)
         cur = self.df.at[idx, col]
-        return (self.df.loc[sidx:eidx, scol:ecol] == 1).to_numpy().sum() - (cur if cur == 1 else 0)
+        return (self.df.loc[sidx:eidx, scol:ecol] >= 1).to_numpy().sum() - (1 if cur >= 1 else 0)
     
     def live_count(self):
         if not self.cells:
@@ -101,10 +106,15 @@ class CellBoard:
         self.df.at[idx, col] = -1
         if liveness == 1:
             self.cells -= 1
+            
+    def heal(self, idx: int, col: int):
+        try:
+            self.df.at[idx, col] = 2
+        except KeyError:
+            return
     
     def render(self):
         rage = '-' * (len(self.df.columns)*2 + 3)
-        charset = {0: DEAD_CHAR, 1: CELL_CHAR, -1: KILLED_CHAR}
         print(rage)
         for _, row in self.df.iterrows():
             print('|', *[charset[val] for val in row], '|', sep=' ')
