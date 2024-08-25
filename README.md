@@ -1,6 +1,6 @@
 ## Little practise of the game of life
 
-> The Conway's Game of Life Breeder automaton
+> [The Conway's Game of Life Breeder automaton](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
 
   Basic rules:
   1. Any live cell with 0 or 1 live neighbors becomes dead, because of underpopulation
@@ -18,7 +18,7 @@ My special cells:
 ### Install
 
 ```bash
-git clone 
+git clone https://github.com/luminousvilax/gol.git
 pip install ./gol
 ```
 
