@@ -98,20 +98,21 @@ class CellBoard:
             self.cells = (self.df == 1).to_numpy().sum()
         return self.cells
 
-    def kill(self, idx: int, col: int):
+    def _modify_cell(self, idx: int, col: int, new_value: int, decrease_cells: bool = False):
+        """Helper method to modify a cell value with bounds checking."""
         try:
             liveness = self.df.at[idx, col]
         except KeyError:
             return
-        self.df.at[idx, col] = -1
-        if liveness == 1:
+        self.df.at[idx, col] = new_value
+        if decrease_cells and liveness == 1:
             self.cells -= 1
 
+    def kill(self, idx: int, col: int):
+        self._modify_cell(idx, col, -1, decrease_cells=True)
+
     def heal(self, idx: int, col: int):
-        try:
-            self.df.at[idx, col] = 2
-        except KeyError:
-            return
+        self._modify_cell(idx, col, 2)
 
     def render(self):
         rage = "-" * (len(self.df.columns) * 2 + 3)
