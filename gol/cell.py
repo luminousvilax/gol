@@ -8,15 +8,16 @@ from .board import CellBoard
 
 class HyperCell:
 
-    def __init__(self, cb: CellBoard, x: int=0, y: int=0) -> None:
+    def __init__(self, cb: CellBoard, action: Callable[[int, int], None], x: int=0, y: int=0) -> None:
         """
         Hyper cell will appear in board randomly by default
         """
         self.cb = cb
+        self.action = action
         self.x = x or (random.randint(0, self.cb.height - 1))
         self.y = y or (random.randint(0, self.cb.width - 1))
 
-    def move(self, action: Callable[[str], None]):
+    def move(self):
         """
         Hyper cell move to available neighbour randomly,
         try to take action
@@ -27,16 +28,16 @@ class HyperCell:
             direction.remove(movement)
             if (0 <= (x := self.x + movement[0]) < self.cb.height and
                 0 <= (y := self.y + movement[1]) < self.cb.width):
-                action(self.x, self.y)
+                self.action(self.x, self.y)
                 self.x, self.y = x, y
                 break
 
 class Killer(HyperCell):
 
-   def move(self):
-        super().move(self.cb.kill)
+    def __init__(self, cb: CellBoard, x: int=0, y: int=0) -> None:
+        super().__init__(cb, cb.kill, x, y)
 
 class Healer(HyperCell):
 
-    def move(self):
-        super().move(self.cb.heal)
+    def __init__(self, cb: CellBoard, x: int=0, y: int=0) -> None:
+        super().__init__(cb, cb.heal, x, y)
